@@ -15,6 +15,8 @@ Real behavior needs a Pi with Keys and lights attached. Before merging changes t
 - The position of a Key in the config sets its Note: index `i` plays `note{i + 1}.wav`. The default pin order matches the piano's wiring.
 - The piano never turns lights on or off. Lights that are off or silent are skipped.
 
+- A HiFiBerry DAC2 Pro on the Pi plays the sound, through its own headphone jack. Leave GPIO 2, 3 and 18 to 21 unconfigured: reconfiguring them silences it until a reboot.
+
 ## Layout on the Pi
 
 Config, login and sounds live in `$CHRISTMAS_PIANO_DATA` (default `/var/lib/christmas-piano`), outside the code checkout. Each folder in `sounds/` in the repo is a built-in Sound Pack, copied there at install.
