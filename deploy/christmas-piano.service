@@ -8,7 +8,7 @@ SupplementaryGroups=gpio audio
 WorkingDirectory=/home/piano/christmas-piano
 Environment=CHRISTMAS_PIANO_DATA=/var/lib/christmas-piano
 Environment=SDL_AUDIODRIVER=alsa
-Environment=AUDIODEV=plughw:CARD=Headphones
+Environment=AUDIODEV=plughw:CARD=sndrpihifiberry
 ExecStart=/usr/bin/python3 -m christmas_piano.piano
 Restart=always
 RestartSec=2

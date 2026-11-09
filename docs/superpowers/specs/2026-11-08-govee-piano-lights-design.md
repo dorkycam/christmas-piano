@@ -86,7 +86,7 @@ These would make the project a failure even if the features worked:
 ## Running on the Pi
 
 - Starts automatically on power-on and restarts within a few seconds after a crash.
-- Sound plays through the Pi's headphone jack. The exact Pi model is not known yet and can be read once the new system is installed.
+- Sound plays through the HiFiBerry DAC2 Pro mounted on the Pi 4, using its headphone jack. It uses GPIO 18 to 21, so those pins cannot be Keys.
 - Software updates happen only on request, by pulling the latest code from GitHub. Config, login and uploaded sounds are unaffected.
 
 ## Installing
