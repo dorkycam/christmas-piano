@@ -31,6 +31,16 @@ def test_verify_rejects_wrong_username(store: CredentialStore) -> None:
     assert not store.verify("nobody", PASSWORD)
 
 
+def test_non_ascii_username_is_rejected_cleanly(store: CredentialStore) -> None:
+    assert not store.verify("josé", PASSWORD)
+
+
+def test_non_ascii_username_can_log_in(tmp_path: Path) -> None:
+    credentials = CredentialStore(tmp_path)
+    credentials.set_login("josé", PASSWORD)
+    assert credentials.verify("josé", PASSWORD)
+
+
 def test_verify_without_login_is_false(tmp_path: Path) -> None:
     assert not CredentialStore(tmp_path).verify(USERNAME, PASSWORD)
 

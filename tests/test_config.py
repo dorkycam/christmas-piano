@@ -57,6 +57,8 @@ def test_round_trip_keeps_chosen_lights() -> None:
     [
         {"key_brightness": 101},
         {"key_brightness": -1},
+        {"key_brightness": 0},
+        {"resting_look": {"color": [1, 2, 3], "brightness": 0}},
         {"hold_seconds": -1},
         {"fade_seconds": -0.5},
         {"hold_seconds": float("nan")},

@@ -252,5 +252,5 @@ No code unless a problem appears. Each step needs the owner.
 - [ ] **Step 3: Flash** with Raspberry Pi Imager: Pi OS Lite 64-bit, hostname `christmas-piano`, user `piano`, Mac's SSH key, current wifi. Confirm target is the 128 GB removable card.
 - [ ] **Step 4: Install** with `deploy/install.sh`, then run `setup_login` with the owner's password over a private stdin. Expected: three services `active`.
 - [ ] **Step 5: Detect test-button pins** while the owner presses each one, and set a 2-Key config.
-- [ ] **Step 6: Check the wake question.** With the light off, send a color and read status. If it wakes, confirm the roster's off-skip prevents it. Expected: a press with the light off leaves it off.
-- [ ] **Step 7: Owner test.** Keys play through the headphone jack, lights follow, the page saves, and the setup network appears when wifi is unavailable.
+- [ ] **Step 6: Check the wake question.** With the light off, send a brightness command and read status, then repeat with a color command, because the worker sends brightness first. If either wakes it, confirm the roster's off-skip prevents it, and measure a press within 15 seconds of switching off. Expected: a press with the light off leaves it off.
+- [ ] **Step 7: Owner test.** Keys play through the headphone jack, lights follow, and the page saves. Then cover wifi: the setup network appears when wifi is unavailable, joining succeeds with a right password and fails with a wrong one, a known network is rejoined after a retry, and a password change updates the setup network.

@@ -57,7 +57,7 @@ class CredentialStore:
         if record is None:
             return False
         matches_hash = hmac.compare_digest(_hash(password, bytes.fromhex(record["salt"])).hex(), record["hash"])
-        return hmac.compare_digest(username, record["username"]) and matches_hash
+        return hmac.compare_digest(username.encode(), record["username"].encode()) and matches_hash
 
     def change_password(self, current: str, new: str) -> bool:
         """Change the password if the current one is right. Returns False if it is not."""

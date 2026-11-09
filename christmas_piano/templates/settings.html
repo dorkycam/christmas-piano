@@ -25,14 +25,14 @@
   </details>
 
   <h2>Timing and brightness</h2>
-  <label class="field"><span>Key color brightness (0 to 100)</span><input type="number" name="key_brightness" value="{{ config.key_brightness }}" min="0" max="100" required></label>
+  <label class="field"><span>Key color brightness (1 to 100)</span><input type="number" name="key_brightness" value="{{ config.key_brightness }}" min="1" max="100" required></label>
   <label class="field"><span>Seconds a Key's color stays on</span><input type="number" name="hold_seconds" value="{{ config.hold_seconds }}" min="0" step="0.1" required></label>
   <label class="field"><span>Seconds to fade to the Resting Look</span><input type="number" name="fade_seconds" value="{{ config.fade_seconds }}" min="0" step="0.1" required></label>
 
   <h2>Resting Look</h2>
   <p class="quiet">What the lights show when nobody is playing.</p>
   <label class="field"><span>Color</span><input type="color" name="resting_color" value="{{ to_hex(config.resting_look.color) }}"></label>
-  <label class="field"><span>Brightness (0 to 100)</span><input type="number" name="resting_brightness" value="{{ config.resting_look.brightness }}" min="0" max="100" required></label>
+  <label class="field"><span>Brightness (1 to 100)</span><input type="number" name="resting_brightness" value="{{ config.resting_look.brightness }}" min="1" max="100" required></label>
 
   <h2>Lights</h2>
   <label class="field"><span>Use every light found</span><input type="radio" name="lights_mode" value="all" {{ "checked" if config.light_ids is none }}></label>
@@ -44,6 +44,12 @@
   </label>
   {% else %}
   <p class="quiet">No lights found yet. In the Govee app, turn on LAN Control for each light, then reload this page in a few seconds.</p>
+  {% endfor %}
+  {% for light_id in absent_lights %}
+  <label class="field">
+    <span>{{ light_id }} <span class="quiet">not found right now</span></span>
+    <input type="checkbox" name="light_id" value="{{ light_id }}" checked>
+  </label>
   {% endfor %}
 
   <h2>Sound Pack</h2>

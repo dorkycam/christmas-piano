@@ -1,4 +1,5 @@
 """Tests for the settings page, using real stores and a fake wifi manager."""
+import dataclasses
 import io
 import json
 import shutil
@@ -128,9 +129,16 @@ def test_saving_chosen_lights(client: FlaskClient, tmp_path: Path) -> None:
     assert load_config(tmp_path / "config.json").light_ids == ("AA", "BB")
 
 
+def test_chosen_light_not_found_stays_selected(client: FlaskClient, tmp_path: Path) -> None:
+    config = dataclasses.replace(default_config(), light_ids=("AWAY",))
+    save_config(tmp_path / "config.json", config)
+    page = client.get("/").data
+    assert b'value="AWAY" checked' in page and b"not found right now" in page
+
+
 def test_invalid_form_keeps_config(client: FlaskClient, tmp_path: Path) -> None:
     response = client.post("/", data=settings_form(key_brightness="500"), follow_redirects=True)
-    assert b"from 0 to 100" in response.data
+    assert b"from 1 to 100" in response.data
     assert load_config(tmp_path / "config.json").key_brightness == 20
 
 

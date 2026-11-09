@@ -28,6 +28,7 @@ DEFAULT_BRIGHTNESS = 20
 DEFAULT_HOLD_SECONDS = 10
 DEFAULT_FADE_SECONDS = 2
 DEFAULT_SOUND_PACK = "meow"
+MIN_BRIGHTNESS = 1
 MAX_BRIGHTNESS = 100
 MAX_COLOR_VALUE = 255
 
@@ -121,7 +122,7 @@ def _resting_look(value: object) -> RestingLook:
         raise ConfigError("resting_look needs a color and a brightness")
     return RestingLook(
         _color(value.get("color"), "resting color"),
-        _integer(value.get("brightness"), "resting brightness", 0, MAX_BRIGHTNESS),
+        _integer(value.get("brightness"), "resting brightness", MIN_BRIGHTNESS, MAX_BRIGHTNESS),
     )
 
 
@@ -146,7 +147,7 @@ def parse_config(raw: dict[str, object]) -> PianoConfig:
         raise ConfigError(f"missing settings: {sorted(missing)}")
     return PianoConfig(
         keys=_keys(raw["keys"]),
-        key_brightness=_integer(raw["key_brightness"], "key_brightness", 0, MAX_BRIGHTNESS),
+        key_brightness=_integer(raw["key_brightness"], "key_brightness", MIN_BRIGHTNESS, MAX_BRIGHTNESS),
         hold_seconds=_seconds(raw["hold_seconds"], "hold_seconds"),
         fade_seconds=_seconds(raw["fade_seconds"], "fade_seconds"),
         resting_look=_resting_look(raw["resting_look"]),

@@ -136,13 +136,16 @@ def create_app(data_path: Path, packs: PackStore, credentials: CredentialStore, 
         except OSError as error:
             logger.warning("Could not request a light search: %s", error)
         all_packs = packs.list_packs()
+        lights = _read_lights(data_path / "lights.json")
+        found_ids = {light.get("device_id") for light in lights}
         active = next((pack for pack in all_packs if pack.name == config.sound_pack), None)
         have_notes = active.notes if active else frozenset()
         return render_template(
             "settings.html",
             config=config,
             packs=all_packs,
-            lights=_read_lights(data_path / "lights.json"),
+            lights=lights,
+            absent_lights=[light_id for light_id in config.light_ids or () if light_id not in found_ids],
             missing_notes=[number for number in range(1, len(config.keys) + 1) if number not in have_notes],
             to_hex=_rgb_to_hex,
         )

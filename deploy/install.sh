@@ -9,7 +9,7 @@ OWNER=piano
 SERVICES=(christmas-piano christmas-piano-web christmas-piano-wifi)
 
 apt-get update
-apt-get install -y python3-pygame python3-rpi.gpio python3-flask python3-waitress ffmpeg
+apt-get install -y python3-pygame python3-rpi.gpio python3-flask python3-waitress ffmpeg polkitd dnsmasq-base
 
 install -d -o "$OWNER" -g "$OWNER" -m 750 "$DATA_DIR" "$DATA_DIR/sounds"
 for pack in "$REPO_DIR"/sounds/*/; do
@@ -21,6 +21,7 @@ for pack in "$REPO_DIR"/sounds/*/; do
   fi
 done
 
+install -d /etc/polkit-1/rules.d
 install -m 644 "$REPO_DIR/deploy/50-christmas-piano.rules" /etc/polkit-1/rules.d/50-christmas-piano.rules
 for service in "${SERVICES[@]}"; do
   install -m 644 "$REPO_DIR/deploy/$service.service" "/etc/systemd/system/$service.service"
