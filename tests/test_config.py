@@ -59,6 +59,8 @@ def test_round_trip_keeps_chosen_lights() -> None:
         {"key_brightness": -1},
         {"hold_seconds": -1},
         {"fade_seconds": -0.5},
+        {"hold_seconds": float("nan")},
+        {"fade_seconds": float("inf")},
         {"sound_pack": ""},
         {"key_brightness": "bright"},
     ],

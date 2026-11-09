@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Log in to Christmas Piano{% endblock %}
+{% block content %}
+<h1>Christmas Piano</h1>
+<form method="post" class="stack">
+  <label>Username <input type="text" name="username" autocomplete="username" required autofocus></label>
+  <label>Password <input type="password" name="password" autocomplete="current-password" required></label>
+  <div><button>Log in</button></div>
+</form>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Wifi for Christmas Piano{% endblock %}
+{% block content %}
+<h1>Join a wifi network</h1>
+<p>Joining a network disconnects this page. Put your computer on the same network, then open <b>http://christmas-piano.local</b>.</p>
+<p class="quiet">If the Pi can't join, the setup network comes back and this page is at http://{{ setup_address }}.</p>
+<form method="post" class="stack">
+  <label>Network
+    <input type="text" name="ssid" list="networks" required autocomplete="off">
+    <datalist id="networks">
+      {% for network in networks %}<option value="{{ network }}"></option>{% endfor %}
+    </datalist>
+  </label>
+  <label>Password <input type="password" name="password" autocomplete="off"></label>
+  <div><button>Join network</button></div>
+</form>
+{% if networks %}
+<h2>Networks nearby</h2>
+<p>{{ networks | join(", ") }}</p>
+{% endif %}
+<p><a href="{{ url_for('settings') }}">Back to settings</a></p>
+{% endblock %}

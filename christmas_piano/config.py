@@ -1,6 +1,7 @@
 """The piano's config: one file on the Pi that the settings page edits and the piano follows."""
 import json
 import logging
+import math
 import os
 import tempfile
 from dataclasses import dataclass
@@ -89,7 +90,7 @@ def _integer(value: object, label: str, low: int, high: int) -> int:
 
 
 def _seconds(value: object, label: str) -> float:
-    if isinstance(value, bool) or not isinstance(value, (int, float)) or value < 0:
+    if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or value < 0:
         raise ConfigError(f"{label} must be zero or more seconds")
     return value
 

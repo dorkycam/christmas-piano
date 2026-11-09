@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="bar">
+  <h1>Christmas Piano</h1>
+  <form method="post" action="{{ url_for('logout') }}"><button class="plain">Log out</button></form>
+</div>
+
+<form method="post" id="settings">
+  <p>Tap a Key to choose the color it shows on the house.</p>
+  <div class="keyboard">
+    {% for key in config.keys %}
+    <label class="key" style="--key: {{ to_hex(key.color) }}">
+      <b>{{ loop.index }}</b>
+      <input type="color" name="key_color_{{ loop.index }}" value="{{ to_hex(key.color) }}" aria-label="Color for Key {{ loop.index }}">
+    </label>
+    {% endfor %}
+  </div>
+  <details>
+    <summary class="quiet">Wiring pins</summary>
+    <div class="wiring">
+      {% for key in config.keys %}
+      <label>Key {{ loop.index }}<input type="number" name="key_pin_{{ loop.index }}" value="{{ key.pin }}" min="0" max="27" required></label>
+      {% endfor %}
+    </div>
+  </details>
+
+  <h2>Timing and brightness</h2>
+  <label class="field"><span>Key color brightness (0 to 100)</span><input type="number" name="key_brightness" value="{{ config.key_brightness }}" min="0" max="100" required></label>
+  <label class="field"><span>Seconds a Key's color stays on</span><input type="number" name="hold_seconds" value="{{ config.hold_seconds }}" min="0" step="0.1" required></label>
+  <label class="field"><span>Seconds to fade to the Resting Look</span><input type="number" name="fade_seconds" value="{{ config.fade_seconds }}" min="0" step="0.1" required></label>
+
+  <h2>Resting Look</h2>
+  <p class="quiet">What the lights show when nobody is playing.</p>
+  <label class="field"><span>Color</span><input type="color" name="resting_color" value="{{ to_hex(config.resting_look.color) }}"></label>
+  <label class="field"><span>Brightness (0 to 100)</span><input type="number" name="resting_brightness" value="{{ config.resting_look.brightness }}" min="0" max="100" required></label>
+
+  <h2>Lights</h2>
+  <label class="field"><span>Use every light found</span><input type="radio" name="lights_mode" value="all" {{ "checked" if config.light_ids is none }}></label>
+  <label class="field"><span>Use only the lights ticked below</span><input type="radio" name="lights_mode" value="chosen" {{ "checked" if config.light_ids is not none }}></label>
+  {% for light in lights %}
+  <label class="field">
+    <span>{{ light.sku }} <span class="quiet">{{ light.device_id }}{{ " (off, so it won't change)" if light.on is not true }}</span></span>
+    <input type="checkbox" name="light_id" value="{{ light.device_id }}" {{ "checked" if config.light_ids is none or light.device_id in config.light_ids }}>
+  </label>
+  {% else %}
+  <p class="quiet">No lights found yet. In the Govee app, turn on LAN Control for each light, then reload this page in a few seconds.</p>
+  {% endfor %}
+
+  <h2>Sound Pack</h2>
+  <label class="field">
+    <span>Playing now</span>
+    <select name="sound_pack">
+      {% for pack in packs %}<option {{ "selected" if pack.name == config.sound_pack }}>{{ pack.name }}</option>{% endfor %}
+    </select>
+  </label>
+  {% if missing_notes %}
+  <p class="quiet">No Note yet for Keys {{ missing_notes | join(", ") }}, so they stay silent.</p>
+  {% endif %}
+
+  <div class="save"><button>Save changes</button></div>
+</form>
+
+<h2>Manage Sound Packs</h2>
+<p class="quiet">Upload WAV or MP3 files up to 20 MB. Your uploads are kept on the Pi, so download a backup before reinstalling it.</p>
+{% for pack in packs %}
+<details class="pack">
+  <summary>{{ pack.name }}</summary>
+  {% for number in range(1, 9) %}
+  <form class="note" method="post" enctype="multipart/form-data" action="{{ url_for('upload_note', name=pack.name, number=number) }}">
+    <span class="{{ '' if number in pack.notes else 'empty' }}">Key {{ number }}</span>
+    <input type="file" name="file" accept=".wav,.mp3" required aria-label="Note for Key {{ number }}">
+    <button class="plain">Upload Note</button>
+  </form>
+  {% endfor %}
+  <form method="post" action="{{ url_for('delete_pack', name=pack.name) }}"><button class="danger">Delete {{ pack.name }}</button></form>
+</details>
+{% endfor %}
+<form class="inline" method="post" action="{{ url_for('create_pack') }}">
+  <input type="text" name="name" placeholder="New pack name" aria-label="New pack name" required>
+  <button class="plain">Create pack</button>
+</form>
+<p><a href="{{ url_for('backup_packs') }}">Download all sounds</a></p>
+
+<h2>Password</h2>
+<p class="quiet">This also changes the password for the setup network.</p>
+<form method="post" action="{{ url_for('change_password') }}" class="stack">
+  <label>Current password <input type="password" name="current" autocomplete="current-password" required></label>
+  <label>New password <input type="password" name="new" autocomplete="new-password" minlength="8" required></label>
+  <div><button>Change password</button></div>
+</form>
+
+<h2>Wifi</h2>
+<p><a href="{{ url_for('wifi_page') }}">Join a different wifi network</a></p>
+
+<script>
+  document.querySelectorAll(".key input").forEach((input) => {
+    input.addEventListener("input", () => input.parentElement.style.setProperty("--key", input.value));
+  });
+</script>
+{% endblock %}

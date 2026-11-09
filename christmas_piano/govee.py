@@ -81,13 +81,13 @@ class GoveeClient:
         """Ask the network which lights exist. Only lights with LAN Control turned on answer."""
         self._send("scan", {"account_topic": "reserve"}, (MULTICAST_ADDRESS, SCAN_PORT))
         lights: dict[str, Light] = {}
-        for message, _ in self._replies(seconds):
+        for message, source in self._replies(seconds):
             data = message.get("data")
             if message.get("cmd") != "scan" or not isinstance(data, dict):
                 continue
             device_id, ip, sku = data.get("device"), data.get("ip"), data.get("sku")
-            if isinstance(device_id, str) and isinstance(ip, str) and isinstance(sku, str):
-                lights[device_id] = Light(device_id, ip, sku)
+            if isinstance(device_id, str) and ip == source and isinstance(sku, str):
+                lights[device_id] = Light(device_id, source, sku)
         return list(lights.values())
 
     def is_on(self, ip: str, seconds: float) -> bool | None:

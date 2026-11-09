@@ -81,6 +81,11 @@ def test_discover_ignores_malformed_replies() -> None:
     assert client.discover(0.01) == [Light("AA", "1.1.1.1", "H805A")]
 
 
+def test_discover_ignores_reply_claiming_another_address() -> None:
+    client, _ = client_with([scan_reply("AA", "8.8.8.8")])
+    assert client.discover(0.01) == []
+
+
 def test_discover_survives_send_error() -> None:
     client = GoveeClient(FakeSocket(send_error=True), FakeSocket())
     assert client.discover(0.01) == []

@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Christmas Piano{% endblock %}</title>
+<style>
+  :root {
+    --evergreen: #12362b;
+    --pine: #1d4a3b;
+    --snow: #f6faf4;
+    --frost: #bfd4c8;
+    --brass: #e0b64f;
+    --cranberry: #b3213f;
+    --ink: #10231c;
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--evergreen); color: var(--snow); font: 1.0625rem/1.6 var(--serif); }
+  main { max-width: 46rem; margin: 0 auto; padding: 2.5rem 1rem 5rem; }
+  h1 { font-size: clamp(2.25rem, 8vw, 3.5rem); line-height: 1.05; font-weight: 400; margin: 0 0 1.5rem; }
+  h2 { font-size: 1.5rem; font-weight: 400; margin: 3rem 0 .5rem; color: var(--brass); }
+  p { margin: .25rem 0 1rem; max-width: 36rem; }
+  .quiet { color: var(--frost); font-size: .95rem; }
+  a { color: var(--brass); }
+  :focus-visible { outline: 3px solid var(--brass); outline-offset: 2px; }
+
+  .field { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem 1rem; padding: .6rem 0; }
+  .field > span:first-child { flex: 1 1 14rem; }
+  input[type=number], input[type=text], input[type=password], select {
+    font: inherit; color: var(--ink); background: var(--snow); border: 0; border-radius: 4px; padding: .35rem .6rem;
+  }
+  input[type=number] { width: 6rem; }
+  input[type=file] { font: inherit; font-size: .9rem; max-width: 100%; color: var(--frost); }
+  input[type=color] { width: 3rem; height: 2.25rem; padding: 0; border: 2px solid var(--snow); border-radius: 4px; background: none; }
+  button { font: inherit; color: var(--ink); background: var(--brass); border: 0; border-radius: 4px; padding: .45rem 1.1rem; cursor: pointer; }
+  button.plain { color: var(--snow); background: none; border: 1px solid var(--frost); }
+  button.danger { color: var(--snow); background: var(--cranberry); }
+
+  .notice { background: var(--snow); color: var(--ink); border-left: 6px solid var(--brass); padding: .6rem 1rem; margin: 0 0 1.5rem; }
+  .bar { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .bar form { margin: 0; }
+
+  .keyboard { display: flex; gap: 3px; background: var(--ink); padding: 3px 3px 0; border-radius: 6px 6px 0 0; border-top: 10px solid var(--cranberry); }
+  .key { position: relative; flex: 1 1 0; min-width: 0; height: 15rem; display: block; cursor: pointer; border-radius: 0 0 8px 8px; background: var(--key); box-shadow: inset 0 -14px 0 rgba(0, 0, 0, .18); }
+  .key:hover { box-shadow: inset 0 -8px 0 rgba(0, 0, 0, .18); }
+  .key:focus-within { outline: 3px solid var(--brass); outline-offset: -3px; }
+  .key input[type=color] { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+  .key b { position: absolute; left: 0; right: 0; bottom: 1.4rem; text-align: center; font-weight: 400; font-size: 1.25rem; color: var(--ink); text-shadow: 0 0 6px rgba(255, 255, 255, .8); pointer-events: none; }
+
+  .wiring { display: flex; gap: 3px; margin-top: .5rem; padding: 0 3px; }
+  .wiring label { flex: 1 1 0; min-width: 0; text-align: center; font-size: .8rem; color: var(--frost); }
+  .wiring input { width: 100%; padding: .2rem; text-align: center; }
+
+  .save { position: sticky; bottom: 0; background: var(--evergreen); padding: .75rem 0; margin-top: 1rem; }
+  .pack { border-top: 1px solid var(--pine); padding: .5rem 0; }
+  .pack summary { cursor: pointer; font-size: 1.125rem; }
+  .note { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem 1rem; padding: .3rem 0; }
+  .note span { width: 5rem; }
+  .note span.empty { color: var(--frost); font-style: italic; }
+  .inline { display: flex; flex-wrap: wrap; gap: .5rem; margin: .75rem 0; }
+  .stack { display: grid; gap: .75rem; max-width: 22rem; }
+  .stack label { display: grid; gap: .2rem; }
+  @media (max-width: 30rem) { .key { height: 11rem; } .key b { font-size: 1rem; } }
+</style>
+</head>
+<body>
+<main>
+  {% with messages = get_flashed_messages() %}
+    {% for message in messages %}<p class="notice" role="status">{{ message }}</p>{% endfor %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</main>
+</body>
+</html>
