@@ -24,7 +24,7 @@ MAX_UPLOAD_BYTES = 20 * 1024 * 1024
 ALLOWED_UPLOAD_SUFFIXES = {".wav", ".mp3"}
 HEX_COLOR = re.compile(r"#[0-9a-fA-F]{6}")
 PUBLIC_ENDPOINTS = {"login", "static"}
-WEB_PORT = 80
+WEB_LISTEN = "0.0.0.0:80 [::]:80"
 
 
 class WifiControls(Protocol):
@@ -240,7 +240,7 @@ def main() -> None:
     root = data_dir()
     credentials = CredentialStore(root)
     wifi = WifiManager(run_command, credentials.setup_network_password, root / "networks.json")
-    serve(create_app(root, PackStore(root / "sounds"), credentials, wifi), host="0.0.0.0", port=WEB_PORT)
+    serve(create_app(root, PackStore(root / "sounds"), credentials, wifi), listen=WEB_LISTEN)
 
 
 if __name__ == "__main__":
