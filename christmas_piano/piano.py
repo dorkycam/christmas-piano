@@ -1,9 +1,12 @@
 """The piano service: reads Keys, plays Notes and hands presses to the lights."""
 import logging
+import signal
+import sys
 import threading
 import time
 from collections.abc import Callable
 from pathlib import Path
+from types import FrameType
 
 from christmas_piano import hardware
 from christmas_piano.audio import SoundBoard, open_pygame_loader, pack_stamp
@@ -38,6 +41,15 @@ def _keep_roster_fresh(roster: LightRoster, rescan_path: Path) -> None:
                 logger.warning("Could not check the lights: %s", error)
 
 
+def exit_on_terminate() -> None:
+    """Make the stop signal end the service. The audio library otherwise swallows it."""
+
+    def stop(_signal: int, _frame: FrameType | None) -> None:
+        sys.exit(0)
+
+    signal.signal(signal.SIGTERM, stop)
+
+
 def start_lights(get_config: Callable[[], PianoConfig], root: Path) -> LightWorker | None:
     """Start the light threads. If that fails the piano carries on with Notes only."""
     try:
@@ -61,6 +73,7 @@ def main() -> None:
     watcher = ConfigWatcher(root / "config.json")
     config = watcher.current()
     board = SoundBoard(open_pygame_loader())
+    exit_on_terminate()
     worker = start_lights(lambda: config, root)
 
     pins: tuple[int, ...] | None = None
