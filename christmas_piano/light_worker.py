@@ -2,7 +2,7 @@
 import logging
 import threading
 import time
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from typing import Protocol
 
 from christmas_piano.config import RGB, PianoConfig
@@ -26,6 +26,8 @@ class LightSender(Protocol):
     def send_color(self, ip: str, color: RGB) -> None: ...
 
     def send_brightness(self, ip: str, value: int) -> None: ...
+
+    def send_bands(self, ip: str, colors: Sequence[RGB]) -> None: ...
 
 
 class LightWorker:
@@ -64,7 +66,10 @@ class LightWorker:
                 return
             for light in targets:
                 self._client.send_brightness(light.ip, command.brightness)
-                self._client.send_color(light.ip, command.color)
+                if command.bands:
+                    self._client.send_bands(light.ip, command.bands)
+                else:
+                    self._client.send_color(light.ip, command.color)
         except Exception:
             logger.exception("Could not update the lights")
 

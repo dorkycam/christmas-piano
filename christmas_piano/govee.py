@@ -1,9 +1,10 @@
 """Talks to Govee lights with their local network protocol (see docs/adr/0001)."""
+import base64
 import json
 import logging
 import socket
 import time
-from collections.abc import Iterator
+from collections.abc import Iterator, Sequence
 from dataclasses import dataclass
 from typing import Protocol
 
@@ -16,6 +17,9 @@ SCAN_PORT = 4001
 REPLY_PORT = 4002
 COMMAND_PORT = 4003
 MAX_PACKET_BYTES = 4096
+SEGMENT_COUNT = 16
+SEGMENTS_PER_BAND = 2
+SEGMENT_PACKET_BODY_BYTES = 19
 
 
 class DatagramSocket(Protocol):
@@ -35,6 +39,24 @@ class Light:
     device_id: str
     ip: str
     sku: str
+
+
+def segment_packet(color: RGB, mask: int) -> str:
+    """Encode a command that paints the segments in `mask`. This is undocumented by Govee."""
+    body = [0x33, 0x05, 0x15, 0x01, *color, 0, 0, 0, 0, 0, mask & 0xFF, (mask >> 8) & 0xFF]
+    body += [0] * (SEGMENT_PACKET_BODY_BYTES - len(body))
+    checksum = 0
+    for byte in body:
+        checksum ^= byte
+    return base64.b64encode(bytes([*body, checksum])).decode()
+
+
+def band_masks(color_count: int) -> list[int]:
+    """Return the segments for each color when stripes repeat along the strip."""
+    masks = [0] * color_count
+    for segment in range(SEGMENT_COUNT):
+        masks[(segment // SEGMENTS_PER_BAND) % color_count] |= 1 << segment
+    return masks
 
 
 class GoveeClient:
@@ -60,6 +82,11 @@ class GoveeClient:
     def send_brightness(self, ip: str, value: int) -> None:
         """Set a light's brightness from 0 to 100."""
         self._send("brightness", {"value": value}, (ip, COMMAND_PORT))
+
+    def send_bands(self, ip: str, colors: Sequence[RGB]) -> None:
+        """Paint repeating stripes of the colors along a light."""
+        packets = [segment_packet(color, mask) for color, mask in zip(colors, band_masks(len(colors)))]
+        self._send("ptReal", {"command": packets}, (ip, COMMAND_PORT))
 
     def _replies(self, seconds: float) -> Iterator[tuple[dict[str, object], str]]:
         """Yield decoded replies until the time runs out."""

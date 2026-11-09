@@ -53,8 +53,8 @@ def test_press_sends_key_color() -> None:
 def test_latest_key_wins() -> None:
     director = started()
     director.press(0, 1)
-    director.press(1, 1)
-    assert director.tick(1, CONFIG) == BLUE_COMMAND
+    director.press(1, 1.2)
+    assert director.tick(1.2, CONFIG) == BLUE_COMMAND
 
 
 def test_rate_cap_delays_second_change() -> None:
@@ -67,7 +67,7 @@ def test_capped_change_sends_when_allowed() -> None:
     director = pressed(0, 1)
     director.press(1, 1.05)
     director.tick(1.05, CONFIG)
-    assert director.tick(1.11, CONFIG) == BLUE_COMMAND
+    assert director.tick(1.11, CONFIG) == LightCommand(RED, 20, (RED, BLUE))
 
 
 def test_holds_without_resending() -> None:
@@ -122,6 +122,90 @@ def test_changed_resting_look_is_resent() -> None:
     director = started()
     config = dataclasses.replace(CONFIG, resting_look=RestingLook(BLUE, 10))
     assert director.tick(5, config) == LightCommand(BLUE, 10)
+
+
+GREEN = (0, 255, 0)
+THREE_KEYS = dataclasses.replace(CONFIG, keys=(KeyConfig(1, RED), KeyConfig(2, BLUE), KeyConfig(3, GREEN)))
+
+
+def test_keys_pressed_together_make_bands() -> None:
+    director = started()
+    director.press(0, 1)
+    director.press(1, 1.05)
+    assert director.tick(1.05, CONFIG) == LightCommand(RED, 20, (RED, BLUE))
+
+
+def test_three_keys_make_three_bands() -> None:
+    director = started()
+    for key in range(3):
+        director.press(key, 1)
+    assert director.tick(1, THREE_KEYS).bands == (RED, BLUE, GREEN)
+
+
+def test_bands_follow_key_order_not_press_order() -> None:
+    director = started()
+    director.press(1, 1)
+    director.press(0, 1.05)
+    assert director.tick(1.05, CONFIG).bands == (RED, BLUE)
+
+
+def test_single_key_has_no_bands() -> None:
+    director = started()
+    director.press(0, 1)
+    assert director.tick(1, CONFIG).bands == ()
+
+
+def test_same_key_twice_has_no_bands() -> None:
+    director = started()
+    director.press(0, 1)
+    director.press(0, 1.05)
+    assert director.tick(1.05, CONFIG) == RED_COMMAND
+
+
+def test_presses_apart_do_not_make_bands() -> None:
+    director = started()
+    director.press(0, 1)
+    director.press(1, 1.5)
+    assert director.tick(1.5, CONFIG) == BLUE_COMMAND
+
+
+def test_fast_run_does_not_pile_into_bands() -> None:
+    director = started()
+    director.press(0, 1)
+    director.press(1, 1.1)
+    director.press(2, 1.2)
+    assert director.tick(1.2, THREE_KEYS) == LightCommand(GREEN, 20)
+
+
+def test_removed_key_is_left_out_of_bands() -> None:
+    director = started()
+    director.press(0, 1)
+    director.press(7, 1.05)
+    assert director.tick(1.05, CONFIG) == RED_COMMAND
+
+
+def test_bands_hold_until_timer_ends() -> None:
+    director = started()
+    director.press(0, 0)
+    director.press(1, 0.05)
+    director.tick(0.05, CONFIG)
+    assert director.tick(9, CONFIG) is None
+
+
+def test_bands_fade_toward_resting() -> None:
+    director = started()
+    director.press(0, 0)
+    director.press(1, 0)
+    director.tick(0, CONFIG)
+    assert director.tick(11, CONFIG).bands == ((128, 50, 0), (0, 50, 128))
+
+
+def test_bands_end_on_solid_resting() -> None:
+    director = started()
+    director.press(0, 0)
+    director.press(1, 0)
+    director.tick(0, CONFIG)
+    assert director.tick(12, CONFIG) == RESTING_COMMAND
 
 
 def test_key_removed_from_config_is_ignored() -> None:

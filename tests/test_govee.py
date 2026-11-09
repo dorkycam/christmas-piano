@@ -1,8 +1,11 @@
 """Tests for the Govee LAN client, using fake sockets in place of the network."""
+import base64
+import functools
 import json
+import operator
 import socket
 
-from christmas_piano.govee import GoveeClient, Light
+from christmas_piano.govee import GoveeClient, Light, band_masks, segment_packet
 
 
 class FakeSocket:
@@ -52,6 +55,39 @@ def test_brightness_packet() -> None:
     client, sender = client_with()
     client.send_brightness("1.1.1.1", 20)
     assert sender.sent == [({"msg": {"cmd": "brightness", "data": {"value": 20}}}, ("1.1.1.1", 4003))]
+
+
+def test_segment_packet_format() -> None:
+    packet = base64.b64decode(segment_packet((1, 2, 3), 0x3333))
+    assert packet[:7] == bytes([0x33, 0x05, 0x15, 0x01, 1, 2, 3])
+    assert packet[12:14] == bytes([0x33, 0x33])
+    assert len(packet) == 20
+
+
+def test_segment_packet_checksum() -> None:
+    packet = base64.b64decode(segment_packet((1, 2, 3), 0x3333))
+    assert functools.reduce(operator.xor, packet[:-1]) == packet[-1]
+
+
+def test_two_bands_match_candy_cane_layout() -> None:
+    assert band_masks(2) == [0x3333, 0xCCCC]
+
+
+def test_bands_cover_every_segment_once() -> None:
+    masks = band_masks(3)
+    assert functools.reduce(operator.or_, masks) == 0xFFFF
+    assert sum(bin(mask).count("1") for mask in masks) == 16
+
+
+def test_bands_go_out_in_one_datagram() -> None:
+    client, sender = client_with()
+    client.send_bands("1.1.1.1", [(1, 2, 3), (4, 5, 6)])
+    expected = [segment_packet((1, 2, 3), 0x3333), segment_packet((4, 5, 6), 0xCCCC)]
+    assert sender.sent == [({"msg": {"cmd": "ptReal", "data": {"command": expected}}}, ("1.1.1.1", 4003))]
+
+
+def test_band_send_error_is_swallowed() -> None:
+    GoveeClient(FakeSocket(send_error=True), FakeSocket()).send_bands("1.1.1.1", [(1, 2, 3)])
 
 
 def test_send_error_is_swallowed() -> None:

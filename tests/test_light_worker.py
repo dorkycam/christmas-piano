@@ -1,6 +1,7 @@
 """Tests for sending light changes without ever holding up the Notes."""
 import threading
 import time
+from collections.abc import Sequence
 
 from christmas_piano.config import default_config
 from christmas_piano.govee import Light
@@ -30,6 +31,9 @@ class FakeClient:
     def send_brightness(self, ip: str, value: int) -> None:
         self.calls.append(("brightness", ip, value))
 
+    def send_bands(self, ip: str, colors: Sequence[tuple[int, int, int]]) -> None:
+        self.calls.append(("bands", ip, tuple(colors)))
+
 
 class RaisingClient(FakeClient):
     def send_color(self, ip: str, color: tuple[int, int, int]) -> None:
@@ -47,8 +51,11 @@ class BlockingClient(FakeClient):
         self.release.wait(2)
 
 
+now = [START_TIME]
+
+
 def worker_for(client: FakeClient, lights: list[Light]) -> LightWorker:
-    now = [START_TIME]
+    now[0] = START_TIME
     return LightWorker(LightDirector(), FakeRoster(lights), client, default_config, clock=lambda: now[0])
 
 
@@ -62,6 +69,19 @@ def test_worker_sends_brightness_and_color_to_each_target() -> None:
         ("brightness", "1.1.1.2", resting.brightness),
         ("color", "1.1.1.2", resting.color),
     ]
+
+
+def test_keys_together_send_bands_instead_of_one_color() -> None:
+    client = FakeClient()
+    worker = worker_for(client, [LIGHT_A])
+    worker.step()
+    client.calls.clear()
+    now[0] += 1
+    worker.press(0)
+    worker.press(1)
+    worker.step()
+    colors = tuple(key.color for key in default_config().keys[:2])
+    assert client.calls == [("brightness", "1.1.1.1", 20), ("bands", "1.1.1.1", colors)]
 
 
 def test_worker_sends_nothing_without_targets() -> None:

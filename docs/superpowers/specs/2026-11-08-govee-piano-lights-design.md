@@ -14,7 +14,7 @@ Vocabulary is defined in `GLOSSARY.md`. Decisions with lasting trade-offs are in
 
 ## Non-goals for now
 
-- Patterns across pixels, such as stripes or sweeps. This is wanted later, so keep light control separate enough to extend. See "Experiments" below.
+- Patterns other than Chord stripes, such as sweeps. Keep light control separate enough to extend.
 - Assigning particular Keys to particular lights.
 - Different colors for each location.
 - Controlling lights through a Govee account or cloud service (ADR 0001).
@@ -36,6 +36,7 @@ These would make the project a failure even if the features worked:
 - The Resting Look is one color and one brightness, default warm white.
 - Key colors share one configurable brightness, separate from the Resting Look, default 20%.
 - During fast playing the latest Key wins, and in-between colors are dropped.
+- Keys pressed within 0.15 seconds of the first form a Chord. The strip shows repeating stripes of their colors, in Key order, two segments wide, assuming 16 segments as in the candy cane test. Chords hold and fade like a single Key.
 - Light updates, including fade steps, are capped at about 10 per second. Recheck this on the real piano.
 - The piano never turns lights on or off, so the Govee app and its schedules stay in charge. A press while the lights are off leaves them off. Whether the color command wakes an off light has not been tested; the builder must test this and prevent it if it does, for example by checking on/off state.
 - Sound comes first. Nothing about the lights may block or delay the Note path.
