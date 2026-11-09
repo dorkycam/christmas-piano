@@ -46,7 +46,7 @@
   .key:hover { box-shadow: inset 0 -8px 0 rgba(0, 0, 0, .18); }
   .key:focus-within { outline: 3px solid var(--brass); outline-offset: -3px; }
   .key input[type=color] { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
-  .key b { position: absolute; left: 0; right: 0; bottom: 1.4rem; text-align: center; font-weight: 400; font-size: 1.25rem; color: var(--ink); text-shadow: 0 0 6px rgba(255, 255, 255, .8); pointer-events: none; }
+  .key b { position: absolute; left: 50%; bottom: 1.4rem; width: 1.8rem; height: 1.8rem; margin-left: -.9rem; border-radius: 50%; background: var(--snow); color: var(--ink); font-weight: 400; font-size: 1rem; line-height: 1.8rem; text-align: center; pointer-events: none; }
 
   .wiring { display: flex; gap: 3px; margin-top: .5rem; padding: 0 3px; }
   .wiring label { flex: 1 1 0; min-width: 0; text-align: center; font-size: .8rem; color: var(--frost); }
@@ -61,7 +61,7 @@
   .inline { display: flex; flex-wrap: wrap; gap: .5rem; margin: .75rem 0; }
   .stack { display: grid; gap: .75rem; max-width: 22rem; }
   .stack label { display: grid; gap: .2rem; }
-  @media (max-width: 30rem) { .key { height: 11rem; } .key b { font-size: 1rem; } }
+  @media (max-width: 30rem) { .key { height: 11rem; } }
 </style>
 </head>
 <body>

@@ -1,0 +1,15 @@
+[Unit]
+Description=Christmas Piano wifi and setup network
+After=NetworkManager.service
+Wants=NetworkManager.service
+
+[Service]
+User=piano
+WorkingDirectory=/home/piano/christmas-piano
+Environment=CHRISTMAS_PIANO_DATA=/var/lib/christmas-piano
+ExecStart=/usr/bin/python3 -m christmas_piano.wifi_service
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

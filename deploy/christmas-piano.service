@@ -1,0 +1,17 @@
+[Unit]
+Description=Christmas Piano Keys, Notes and lights
+After=sound.target network.target
+
+[Service]
+User=piano
+SupplementaryGroups=gpio audio
+WorkingDirectory=/home/piano/christmas-piano
+Environment=CHRISTMAS_PIANO_DATA=/var/lib/christmas-piano
+Environment=SDL_AUDIODRIVER=alsa
+Environment=AUDIODEV=plughw:CARD=Headphones
+ExecStart=/usr/bin/python3 -m christmas_piano.piano
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,15 @@
+[Unit]
+Description=Christmas Piano settings page
+After=network.target
+
+[Service]
+User=piano
+WorkingDirectory=/home/piano/christmas-piano
+Environment=CHRISTMAS_PIANO_DATA=/var/lib/christmas-piano
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+ExecStart=/usr/bin/python3 -m christmas_piano.web
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target
