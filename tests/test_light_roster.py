@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 
 from christmas_piano.govee import Light
-from christmas_piano.light_roster import LightRoster
+from christmas_piano.light_roster import LightRoster, consume_rescan_request
 
 LIGHT_A = Light("AA", "1.1.1.1", "H805A")
 LIGHT_B = Light("BB", "1.1.1.2", "H805A")
@@ -61,6 +61,17 @@ def test_refresh_writes_state(tmp_path: Path) -> None:
         {"device_id": "AA", "ip": "1.1.1.1", "sku": "H805A", "on": True},
         {"device_id": "BB", "ip": "1.1.1.2", "sku": "H805A", "on": False},
     ]
+
+
+def test_rescan_request_is_consumed(tmp_path: Path) -> None:
+    path = tmp_path / "rescan"
+    path.touch()
+    assert consume_rescan_request(path) is True
+    assert not path.exists()
+
+
+def test_no_rescan_request(tmp_path: Path) -> None:
+    assert consume_rescan_request(tmp_path / "rescan") is False
 
 
 def test_light_gone_from_network_is_removed(tmp_path: Path) -> None:

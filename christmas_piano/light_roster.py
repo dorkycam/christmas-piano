@@ -48,3 +48,12 @@ class LightRoster:
             for light, on in self._lights
             if on is True and (light_ids is None or light.device_id in light_ids)
         ]
+
+
+def consume_rescan_request(path: Path) -> bool:
+    """Return True if the settings page asked for a new search, clearing the request."""
+    try:
+        path.unlink()
+    except OSError:
+        return False
+    return True
