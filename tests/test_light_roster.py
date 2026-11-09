@@ -63,6 +63,33 @@ def test_refresh_writes_state(tmp_path: Path) -> None:
     ]
 
 
+def test_refresh_states_stops_targeting_a_light_turned_off(tmp_path: Path) -> None:
+    states: dict[str, bool | None] = {"1.1.1.1": True}
+    roster = LightRoster(FakeClient([LIGHT_A], states), tmp_path / "lights.json")
+    roster.refresh()
+    states["1.1.1.1"] = False
+    roster.refresh_states()
+    assert roster.targets(None) == []
+
+
+def test_refresh_states_does_not_search_again(tmp_path: Path) -> None:
+    client = FakeClient([LIGHT_A], {"1.1.1.1": True})
+    roster = LightRoster(client, tmp_path / "lights.json")
+    roster.refresh()
+    client.lights = []
+    roster.refresh_states()
+    assert roster.targets(None) == [LIGHT_A]
+
+
+def test_refresh_states_only_rewrites_file_on_change(tmp_path: Path) -> None:
+    path = tmp_path / "lights.json"
+    roster = LightRoster(FakeClient([LIGHT_A], {"1.1.1.1": True}), path)
+    roster.refresh()
+    path.write_text("untouched")
+    roster.refresh_states()
+    assert path.read_text() == "untouched"
+
+
 def test_rescan_request_is_consumed(tmp_path: Path) -> None:
     path = tmp_path / "rescan"
     path.touch()

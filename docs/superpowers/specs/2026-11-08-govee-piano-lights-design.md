@@ -47,7 +47,7 @@ These would make the project a failure even if the features worked:
 - Measured from a Mac over wifi: status replies took 24-44 ms. Bursts of 5, 10 and 20 changes per second always ended on the right color. Immediately after a 10-per-second fade the light reported the second-to-last step, so changes appear to apply at least 0.1 seconds late.
 - The light selection setting is either "every light found" (default) or a list of ticked lights, remembered by device ID so a changed network address does not matter.
 - Moving to a new location uses the lights found there and keeps the same colors.
-- Builder's call, recorded here: "never turn lights on" outranks "react to presses". If a color command wakes an off light, skip updates to lights known to be off, tracking on/off from a periodic status check rather than one per press. The update cap is per light.
+- Builder's call, recorded here: "never turn lights on" outranks "react to presses". If a color command wakes an off light, skip updates to lights known to be off, tracking on/off from a status check every 2 seconds rather than one per press. Tested on the H805A: commands sent to an off light turn it on, so a press within 2 seconds of switching off can still wake it. The update cap is per light.
 - Builder's call, recorded here: discovery repeats periodically and whenever the settings page lists lights.
 
 ## Config

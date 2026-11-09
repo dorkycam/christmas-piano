@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 POLL_SECONDS = 0.005
 CONFIG_CHECK_SECONDS = 1.0
 ROSTER_REFRESH_SECONDS = 15
-ROSTER_WAIT_SECONDS = 1.0
+STATUS_REFRESH_SECONDS = 2.0
 
 
 def _keep_roster_fresh(roster: LightRoster, rescan_path: Path) -> None:
@@ -30,8 +30,12 @@ def _keep_roster_fresh(roster: LightRoster, rescan_path: Path) -> None:
             logger.warning("Could not refresh the lights: %s", error)
         waited = 0.0
         while waited < ROSTER_REFRESH_SECONDS and not consume_rescan_request(rescan_path):
-            time.sleep(ROSTER_WAIT_SECONDS)
-            waited += ROSTER_WAIT_SECONDS
+            time.sleep(STATUS_REFRESH_SECONDS)
+            waited += STATUS_REFRESH_SECONDS
+            try:
+                roster.refresh_states()
+            except OSError as error:
+                logger.warning("Could not check the lights: %s", error)
 
 
 def start_lights(get_config: Callable[[], PianoConfig], root: Path) -> LightWorker | None:

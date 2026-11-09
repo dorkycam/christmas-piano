@@ -32,6 +32,14 @@ class LightRoster:
         self._lights = [(light, self._client.is_on(light.ip, STATUS_SECONDS)) for light in found]
         self._write_state()
 
+    def refresh_states(self) -> None:
+        """Recheck which known lights are on, without searching. A stale answer could wake a light."""
+        states = [(light, self._client.is_on(light.ip, STATUS_SECONDS)) for light, _ in self._lights]
+        changed = states != self._lights
+        self._lights = states
+        if changed:
+            self._write_state()
+
     def _write_state(self) -> None:
         state = [
             {"device_id": light.device_id, "ip": light.ip, "sku": light.sku, "on": on}
